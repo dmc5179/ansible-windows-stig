@@ -1,0 +1,57 @@
+---
+# tasks file for ansible-windows-stig
+
+#- name: Test connectivity
+#  win_ping:
+
+#- name: Install PowerStig PowerShell Module
+#  win_psmodule:
+#    name: PowerStig
+#    state: present
+
+#- name: Install Microsoft DSCEA PowerShell Module
+#  win_psmodule:
+#    name: dscea
+#    state: present
+
+- name: Make directory for STIG scan output
+  win_file:
+    path: 'C:\Users\Administrator\AppData\Local\Temp\DSCEA'
+    state: directory
+
+- name: Copy the default Organizational Settings
+  win_copy:
+    remote_src: true
+    src: 'C:\Program Files\WindowsPowerShell\Modules\PowerSTIG\4.4.2\StigData\Processed\WindowsServer-2019-MS-1.3.org.default.xml'
+    dest: 'C:\Users\Administrator\AppData\Local\Temp\DSCEA\WindowsServer-2019-MS-1.3.org.xml'
+
+- name: Copy the power shell script for generating the MOF
+  win_template:
+    src: "templates/generate_mof.ps1.j2"
+    dest: 'C:\Users\Administrator\AppData\Local\Temp\DSCEA\generate_mof.ps1'
+
+- name: Generate the MOF
+  win_shell: 'C:\Users\Administrator\AppData\Local\Temp\DSCEA\generate_mof.ps1'
+  args:
+    creates: 'C:\Users\Administrator\AppData\Local\Temp\DSCEA\localhost.mof'
+
+- name: Run STIG Scan
+  win_shell: Start-DSCEAscan -MofFile C:\Users\Administrator\AppData\Local\Temp\DSCEA\localhost.mof -ComputerName Server01 -OutputPath C:\Users\Administrator\AppData\Local\Temp\DSCEA
+
+#- name: Find results
+#  win_find:
+#    paths: 'C:\Users\Administrator\AppData\Local\Temp\DSCEA'
+#    hidden: true
+#  register: win_results
+
+#- name: Show results
+#  debug:
+#    var: win_results
+
+#- name: Get list of avaialbel STIGs
+#  win_shell: Get-Stig -ListAvailable
+#  register: win_stigs
+#
+#- name: Show list of available STIGs
+#  debug:
+#    var: win_stigs

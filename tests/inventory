@@ -1,0 +1,16 @@
+[all]
+
+ec2-54-82-77-158.compute-1.amazonaws.com
+
+[all:vars]
+#ansible_ssh_private_key_file=/home/danclark/.ssh/grimlock-redhatgov-io.pem
+ansible_connection=winrm
+ansible_winrm_transport=basic
+ansible_user=Administrator
+ansible_password='9QE)Ce;fpOzNhOoB$didM24O;El?Ld!T'
+ansible_winrm_server_cert_validation=ignore
+#ansible_become=yes
+#ansible_become_method=sudo
+#ansible_become_user=root
+
+
